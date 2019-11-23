@@ -29,5 +29,7 @@ def reconnect(delay=2):
                 except ConnectionError:
                     logging.info(f"connection error, reconnect in {delay:.2f}s")
                     await asyncio.sleep(delay)
+                else:
+                    return
         return wrapper
     return deco
