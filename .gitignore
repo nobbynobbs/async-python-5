@@ -1,1 +1,10 @@
+### IDE and Editors
 .idea/
+.vscode/
+
+### python cache files
+__pycache__/
+*.py[co]
+
+### app files
+history.txt
