@@ -6,7 +6,9 @@ from typing import List
 from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError
 import minechat.lib.gui as gui
+from minechat.helpers import create_handy_nursery
 from minechat.lib.gui import SendingConnectionStateChanged, ReadConnectionStateChanged
+
 
 async def send_messages(
         address: str,
@@ -22,12 +24,42 @@ async def send_messages(
         event = gui.NicknameReceived(account_info["nickname"])
         await state_queue.put(event)
 
-        while True:
-            msg = await input_queue.get()
-            logging.debug(f"Пользователь написал: {msg}")
-            # message doesn't appear in the chat if only one `\n` used
-            await _send(writer, _sanitize(msg, eol="\n\n"))
-            await watchdog_queue.put("Message sent")
+        async with create_handy_nursery() as nursery:
+            nursery.start_soon(_send_user_messages(writer, input_queue, watchdog_queue))
+            nursery.start_soon(_send_healthcheck_messages(writer, 1))
+            nursery.start_soon(_read_healthcheck_messages(reader, watchdog_queue))
+
+
+async def _send_user_messages(
+        writer: asyncio.StreamWriter,
+        input_queue: asyncio.Queue,
+        watchdog_queue: asyncio.Queue,
+):
+    while True:
+        msg = await input_queue.get()
+        logging.debug(f"Пользователь написал: {msg}")
+        # message doesn't appear in the chat if only one `\n` used
+        await _send(writer, _sanitize(msg, eol="\n\n"))
+        await watchdog_queue.put("Message sent")
+
+
+async def _send_healthcheck_messages(
+        writer: asyncio.StreamWriter,
+        interval: float = 0.5
+):
+    while True:
+        writer.write(b"\n")
+        await writer.drain()
+        await asyncio.sleep(interval)
+
+
+async def _read_healthcheck_messages(
+        reader: asyncio.StreamReader,
+        watchdog_queue: asyncio.Queue
+):
+    while True:
+        _ = await reader.readline()
+        await watchdog_queue.put("Healthcheck message")
 
 
 async def authenticate(token, reader, writer, watchdog_queue):
@@ -69,12 +101,12 @@ async def _read_forever(
     while True:
         raw_bytes = await reader.readline()
         msg = raw_bytes.decode("utf-8").strip()
+        await watchdog_queue.put("New message in chat")
         for queue in queues:
             await queue.put(msg)
-        await watchdog_queue.put("New message in chat")
 
 
-async def _read(reader):
+async def _read(reader: asyncio.StreamReader):
     """helper for reading from stream"""
     raw_data = await reader.readline()
     decoded_data = raw_data.decode("utf-8").strip()
@@ -82,7 +114,7 @@ async def _read(reader):
     return decoded_data
 
 
-async def _send(writer, data: bytes or str):
+async def _send(writer: asyncio.StreamWriter, data: bytes or str):
     """helper for writing into stream"""
     if isinstance(data, str):
         data = data.encode("utf-8")

@@ -27,7 +27,7 @@ def reconnect(delay=2):
                 try:
                     await f(*args, **kwargs)
                 except ConnectionError:
-                    logging.info(f"reconnect in {delay:.2f}s")
+                    logging.info(f"connection error, reconnect in {delay:.2f}s")
                     await asyncio.sleep(delay)
         return wrapper
     return deco

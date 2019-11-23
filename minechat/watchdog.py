@@ -1,10 +1,12 @@
 import asyncio
 import logging
+import socket
 
+import aionursery
 import async_timeout
 
 import minechat.clients  as clients
-from minechat.helpers import create_handy_nursery, reconnect
+from minechat.helpers import reconnect, create_handy_nursery
 
 logger = logging.getLogger(__name__)
 
@@ -36,22 +38,29 @@ async def handle_connection(
         watchdog_queue: asyncio.Queue,
         state_queue: asyncio.Queue,
 ):
-    async with create_handy_nursery() as nursery:
-        nursery.start_soon(watch_for_connection(
-            events_queue=watchdog_queue
-        ))
-        nursery.start_soon(clients.read_messages(
-            address=reader_address,
-            state_queue=state_queue,
-            message_queues=[messages_queue, history_queue],
-            watchdog_queue=watchdog_queue,
-        ))
-        nursery.start_soon(clients.send_messages(
-            address=writer_address,
-            access_token=access_token,
-            state_queue=state_queue,
-            input_queue=input_queue,
-            watchdog_queue=watchdog_queue,
-        ))
-
-
+    try:
+        async with create_handy_nursery() as nursery:
+            nursery.start_soon(watch_for_connection(
+                events_queue=watchdog_queue,
+                timeout=2,
+            ))
+            nursery.start_soon(clients.read_messages(
+                address=reader_address,
+                state_queue=state_queue,
+                message_queues=[messages_queue, history_queue],
+                watchdog_queue=watchdog_queue,
+            ))
+            nursery.start_soon(clients.send_messages(
+                address=writer_address,
+                access_token=access_token,
+                state_queue=state_queue,
+                input_queue=input_queue,
+                watchdog_queue=watchdog_queue,
+            ))
+    except socket.gaierror:
+        raise ConnectionError
+    except aionursery.MultiError as ex:
+        if any(isinstance(e, socket.gaierror) for e in ex.exceptions):
+            raise ConnectionError
+        else:
+            raise
