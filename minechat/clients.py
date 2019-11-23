@@ -35,6 +35,7 @@ async def _send_user_messages(
         input_queue: asyncio.Queue,
         watchdog_queue: asyncio.Queue,
 ):
+    """read messages from queue and send them to server"""
     while True:
         msg = await input_queue.get()
         logging.debug(f"Пользователь написал: {msg}")
@@ -43,20 +44,16 @@ async def _send_user_messages(
         await watchdog_queue.put("Message sent")
 
 
-async def _send_healthcheck_messages(
-        writer: asyncio.StreamWriter,
-        interval: float = 0.5
-):
+async def _send_healthcheck_messages(writer: asyncio.StreamWriter, interval: float = 0.5):
+    """send pings to server"""
     while True:
         writer.write(b"\n")
         await writer.drain()
         await asyncio.sleep(interval)
 
 
-async def _read_healthcheck_messages(
-        reader: asyncio.StreamReader,
-        watchdog_queue: asyncio.Queue
-):
+async def _read_healthcheck_messages(reader: asyncio.StreamReader, watchdog_queue: asyncio.Queue):
+    """read server responses to pings"""
     while True:
         _ = await reader.readline()
         await watchdog_queue.put("Healthcheck message")
@@ -64,7 +61,7 @@ async def _read_healthcheck_messages(
 
 async def authenticate(token, reader, writer, watchdog_queue):
     """authenticate user by token"""
-    await _read(reader)  # log auth greetings
+    await _read(reader)  # read auth greeting
     await watchdog_queue.put("Prompt before authentication")
     await _send(writer, "{}\n".format(token))
     response = await _read(reader)
@@ -87,23 +84,16 @@ async def read_messages(
         watchdog_queue: asyncio.Queue,
         timeout: float = 1
 ):
-    """establish connection and run reader"""
+    """establish connection and then
+    read messages from stream reader and pass them into queues
+    """
     async with connect(address, state_queue, ReadConnectionStateChanged, timeout) as (r, _):
-        await _read_forever(r, message_queues, watchdog_queue)
-
-
-async def _read_forever(
-        reader: asyncio.StreamReader,
-        queues: List[asyncio.Queue],
-        watchdog_queue: asyncio.Queue,
-):
-    """read messages from stream reader and pass them into queues"""
-    while True:
-        raw_bytes = await reader.readline()
-        msg = raw_bytes.decode("utf-8").strip()
-        await watchdog_queue.put("New message in chat")
-        for queue in queues:
-            await queue.put(msg)
+        while True:
+            raw_bytes = await r.readline()
+            msg = raw_bytes.decode("utf-8").strip()
+            await watchdog_queue.put("New message in chat")
+            for queue in message_queues:
+                await queue.put(msg)
 
 
 async def _read(reader: asyncio.StreamReader):

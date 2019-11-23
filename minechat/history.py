@@ -3,19 +3,15 @@ import asyncio
 import aiofiles
 
 
-def restore(
-        path: str,
-        messages_queue: asyncio.Queue
-):
-    with open(path, "r", encoding="utf-8") as f:
-        for msg in f:
-            messages_queue.put_nowait(msg.strip())
+async def restore(path: str, messages_queue: asyncio.Queue):
+    """restore messages history from file"""
+    async with aiofiles.open(path, "r", encoding="utf-8") as f:
+        async for msg in f:
+            await messages_queue.put(msg.strip())
 
 
-async def save(
-        path: str,
-        history_queue: asyncio.Queue,
-):
+async def save(path: str, history_queue: asyncio.Queue):
+    """dump messages history into file"""
     async with aiofiles.open(path, "a", encoding="utf-8") as f:
         while True:
             msg = await history_queue.get()

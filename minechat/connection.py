@@ -2,6 +2,9 @@ import asyncio
 import contextlib
 
 from typing import Tuple, Any, Generator, Type, TypeVar
+
+import async_timeout
+
 from minechat.lib.gui import ReadConnectionStateChanged, SendingConnectionStateChanged
 
 
@@ -15,13 +18,15 @@ async def connect(
         state_cls: Type[StateChanged],
         timeout:float = 1
 ) -> Generator[Any, None, Tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
+    """create connection and send statuses into queue"""
+
     host, port = address.split(":")
-    writer: asyncio.StreamWriter  # "define" variable for autocomplete purposes
     await state_queue.put(state_cls.INITIATED)
-    reader, writer = await asyncio.wait_for(
-        asyncio.open_connection(host, port),
-        timeout
-    )
+    try:
+        async with async_timeout.timeout(timeout):
+            reader, writer = await asyncio.open_connection(host, port)
+    except asyncio.TimeoutError:
+        raise ConnectionError
     await state_queue.put(state_cls.ESTABLISHED)
     try:
         yield reader, writer

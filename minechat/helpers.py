@@ -20,6 +20,7 @@ async def create_handy_nursery():
 
 
 def reconnect(delay=2):
+    """wraps connection handler into almost infinite loop"""
     def deco(f):
         @functools.wraps(f)
         async def wrapper(*args, **kwargs):

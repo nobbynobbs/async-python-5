@@ -1,25 +1,29 @@
-DEFAULT_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "watchdog": {
-            "format": "[%(created)d] Connection is alive. %(message)s",
-        }
-    },
-    "handlers": {
-        "watchdog": {
-            "formatter": "watchdog",
-            "class": "logging.StreamHandler",
+
+
+def get_dict(level: str):
+    """dict config for logging module"""
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "watchdog": {
+                "format": "[%(created)d] Connection is alive. %(message)s",
+            }
         },
-    },
-    "loggers": {
-        '': {
-            "level": "INFO",
+        "handlers": {
+            "watchdog": {
+                "formatter": "watchdog",
+                "class": "logging.StreamHandler",
+            },
         },
-        "minechat.watchdog": {
-            "level": "INFO",
-            "handlers": ["watchdog"],
-            "propagate": False,
+        "loggers": {
+            '': {
+                "level": level,
+            },
+            "minechat.watchdog": {
+                "level": level,
+                "handlers": ["watchdog"],
+                "propagate": False,
+            },
         },
-    },
-}
+    }
