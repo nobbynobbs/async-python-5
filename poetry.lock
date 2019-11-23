@@ -6,9 +6,27 @@ optional = false
 python-versions = "*"
 version = "0.4.0"
 
+[[package]]
+category = "main"
+description = "Manage background asyncio tasks"
+name = "aionursery"
+optional = false
+python-versions = ">=3.5,<4.0"
+version = "0.3.0"
+
+[[package]]
+category = "main"
+description = "Timeout context manager for asyncio programs"
+name = "async-timeout"
+optional = false
+python-versions = ">=3.5.3"
+version = "3.0.1"
+
 [metadata]
-content-hash = "0f13d519fa55df69bb73809ff98f03b9c188b92f03dbcef5a0581ba51d9bea77"
+content-hash = "514aa59881f98c4b5233a626e57b92d41ecf6c12c891c639236d69295ddeb10b"
 python-versions = "^3.7"
 
 [metadata.hashes]
 aiofiles = ["021ea0ba314a86027c166ecc4b4c07f2d40fc0f4b3a950d1868a0f2571c2bbee", "1e644c2573f953664368de28d2aa4c89dfd64550429d0c27c4680ccd3aa4985d"]
+aionursery = ["0836d9863393cfe68a18e91c6a00af788960cb40207a1f19105270012f4e08ce", "bc6953501add61dd0e24b1755a645dfbccd904c2737b6fce4e28f3294bab88d0"]
+async-timeout = ["0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f", "4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3"]
