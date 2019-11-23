@@ -12,6 +12,7 @@ async-timeout = "^3.0"
 aionursery = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
+flake8 = "^3.7"
 
 [tool.poetry.scripts]
 minechat = "minechat.main:main"

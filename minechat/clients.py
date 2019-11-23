@@ -7,7 +7,10 @@ from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError
 import minechat.lib.gui as gui
 from minechat.helpers import create_handy_nursery
-from minechat.lib.gui import SendingConnectionStateChanged, ReadConnectionStateChanged
+from minechat.lib.gui import (
+    SendingConnectionStateChanged,
+    ReadConnectionStateChanged
+)
 
 
 async def send_messages(
@@ -18,16 +21,27 @@ async def send_messages(
         watchdog_queue: asyncio.Queue,
 ):
     """send message to minechat"""
-    async with connect(address, state_queue, SendingConnectionStateChanged, 1) as (reader, writer):
-        account_info = await authenticate(access_token, reader, writer, watchdog_queue)
+    async with connect(
+            address=address,
+            state_queue=state_queue,
+            state_cls=SendingConnectionStateChanged,
+            timeout=1
+    ) as (reader, writer):
+        account_info = await authenticate(
+            access_token, reader, writer, watchdog_queue
+        )
 
         event = gui.NicknameReceived(account_info["nickname"])
         await state_queue.put(event)
 
         async with create_handy_nursery() as nursery:
-            nursery.start_soon(_send_user_messages(writer, input_queue, watchdog_queue))
+            nursery.start_soon(
+                _send_user_messages(writer, input_queue, watchdog_queue)
+            )
             nursery.start_soon(_send_healthcheck_messages(writer, 1))
-            nursery.start_soon(_read_healthcheck_messages(reader, watchdog_queue))
+            nursery.start_soon(
+                _read_healthcheck_messages(reader, watchdog_queue)
+            )
 
 
 async def _send_user_messages(
@@ -44,7 +58,9 @@ async def _send_user_messages(
         await watchdog_queue.put("Message sent")
 
 
-async def _send_healthcheck_messages(writer: asyncio.StreamWriter, interval: float = 0.5):
+async def _send_healthcheck_messages(
+        writer: asyncio.StreamWriter, interval: float = 0.5
+):
     """send pings to server"""
     while True:
         writer.write(b"\n")
@@ -52,7 +68,9 @@ async def _send_healthcheck_messages(writer: asyncio.StreamWriter, interval: flo
         await asyncio.sleep(interval)
 
 
-async def _read_healthcheck_messages(reader: asyncio.StreamReader, watchdog_queue: asyncio.Queue):
+async def _read_healthcheck_messages(
+        reader: asyncio.StreamReader, watchdog_queue: asyncio.Queue
+):
     """read server responses to pings"""
     while True:
         _ = await reader.readline()
@@ -87,9 +105,14 @@ async def read_messages(
     """establish connection and then
     read messages from stream reader and pass them into queues
     """
-    async with connect(address, state_queue, ReadConnectionStateChanged, timeout) as (r, _):
+    async with connect(
+            address=address,
+            state_queue=state_queue,
+            state_cls=ReadConnectionStateChanged,
+            timeout=timeout
+    ) as (reader, _):
         while True:
-            raw_bytes = await r.readline()
+            raw_bytes = await reader.readline()
             msg = raw_bytes.decode("utf-8").strip()
             await watchdog_queue.put("New message in chat")
             for queue in message_queues:

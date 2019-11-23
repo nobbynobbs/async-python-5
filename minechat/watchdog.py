@@ -5,7 +5,7 @@ import socket
 import aionursery
 import async_timeout
 
-import minechat.clients  as clients
+import minechat.clients as clients
 from minechat.helpers import reconnect, create_handy_nursery
 
 logger = logging.getLogger(__name__)

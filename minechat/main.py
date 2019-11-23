@@ -1,4 +1,3 @@
-import argparse
 import asyncio
 import logging
 import logging.config
@@ -83,11 +82,20 @@ def main():
             greetings=greetings,
         ))
     except InvalidToken:
-        messagebox.showinfo("Неверный токен", "Проверьте токен, сервер его не узнал.")
+        messagebox.showinfo(
+            "Неверный токен",
+            "Проверьте токен, сервер его не узнал."
+        )
     except UnknownError:
-        messagebox.showinfo("Неизвестная ошибка", "Произошла неизвестная ошибка, приложение будет закрыто.")
+        messagebox.showinfo(
+            "Неизвестная ошибка",
+            "Произошла неизвестная ошибка, приложение будет закрыто."
+        )
     except PermissionError as e:
-        messagebox.showinfo(e.__class__.__name__, f"Невозможно получить доступ к файлу {e.filename}")
+        messagebox.showinfo(
+            e.__class__.__name__,
+            f"Невозможно получить доступ к файлу {e.filename}"
+        )
     except (KeyboardInterrupt, gui.TkAppClosed):
         pass
 
