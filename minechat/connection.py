@@ -38,3 +38,4 @@ async def connect(
         writer.close()
         await writer.wait_closed()
         await state_queue.put(state_cls.CLOSED)
+        await state_queue.put(gui.NicknameReceived("неизвестно"))
