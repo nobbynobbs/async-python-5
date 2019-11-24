@@ -5,14 +5,13 @@ from typing import Tuple, Any, Generator, Type, TypeVar
 
 import async_timeout
 
-from minechat.lib.gui import (
-    ReadConnectionStateChanged,
-    SendingConnectionStateChanged,
-)
+from minechat.lib import gui
 
 
 StateChanged = TypeVar(
-    "StateChanged", ReadConnectionStateChanged, SendingConnectionStateChanged
+    "StateChanged",
+    gui.ReadConnectionStateChanged,
+    gui.SendingConnectionStateChanged
 )
 
 

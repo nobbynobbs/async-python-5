@@ -6,11 +6,7 @@ from typing import List
 from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError
 import minechat.lib.gui as gui
-from minechat.helpers import create_handy_nursery
-from minechat.lib.gui import (
-    SendingConnectionStateChanged,
-    ReadConnectionStateChanged
-)
+import minechat.helpers as helpers
 
 
 async def send_messages(
@@ -24,7 +20,7 @@ async def send_messages(
     async with connect(
             address=address,
             state_queue=state_queue,
-            state_cls=SendingConnectionStateChanged,
+            state_cls=gui.SendingConnectionStateChanged,
             timeout=1
     ) as (reader, writer):
         account_info = await authenticate(
@@ -34,7 +30,7 @@ async def send_messages(
         event = gui.NicknameReceived(account_info["nickname"])
         await state_queue.put(event)
 
-        async with create_handy_nursery() as nursery:
+        async with helpers.create_handy_nursery() as nursery:
             nursery.start_soon(
                 _send_user_messages(writer, input_queue, watchdog_queue)
             )
@@ -54,7 +50,7 @@ async def _send_user_messages(
         msg = await input_queue.get()
         logging.debug(f"Пользователь написал: {msg}")
         # message doesn't appear in the chat if only one `\n` used
-        await _send(writer, _sanitize(msg, eol="\n\n"))
+        await helpers.send(writer, helpers.sanitize(msg, eol="\n\n"))
         await watchdog_queue.put("Message sent")
 
 
@@ -79,10 +75,10 @@ async def _read_healthcheck_messages(
 
 async def authenticate(token, reader, writer, watchdog_queue):
     """authenticate user by token"""
-    await _read(reader)  # read auth greeting
+    await helpers.read(reader)  # read auth greeting
     await watchdog_queue.put("Prompt before authentication")
-    await _send(writer, "{}\n".format(token))
-    response = await _read(reader)
+    await helpers.send(writer, "{}\n".format(token))
+    response = await helpers.read(reader)
     try:
         account_info = json.loads(response)
     except json.JSONDecodeError:
@@ -108,7 +104,7 @@ async def read_messages(
     async with connect(
             address=address,
             state_queue=state_queue,
-            state_cls=ReadConnectionStateChanged,
+            state_cls=gui.ReadConnectionStateChanged,
             timeout=timeout
     ) as (reader, _):
         while True:
@@ -117,29 +113,3 @@ async def read_messages(
             await watchdog_queue.put("New message in chat")
             for queue in message_queues:
                 await queue.put(msg)
-
-
-async def _read(reader: asyncio.StreamReader):
-    """helper for reading from stream"""
-    raw_data = await reader.readline()
-    decoded_data = raw_data.decode("utf-8").strip()
-    logging.debug(decoded_data)
-    return decoded_data
-
-
-async def _send(writer: asyncio.StreamWriter, data: bytes or str):
-    """helper for writing into stream"""
-    if isinstance(data, str):
-        data = data.encode("utf-8")
-    writer.write(data)
-    await writer.drain()
-
-
-def _sanitize(message, eol="\n"):
-    """helper function.
-    truncate space symbols at the beginning
-    and at the end of string,
-    then replace new lines inside the string
-    and at last append new line at the end of string
-    """
-    return "{}{}".format(message.strip().replace("\n", " "), eol)

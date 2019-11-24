@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import functools
 import logging
+from typing import Union
 
 import aionursery
 
@@ -36,3 +37,29 @@ def reconnect(delay=2):
                     return
         return wrapper
     return deco
+
+
+def sanitize(message: str, eol: str = "\n"):
+    """helper function.
+    truncate space symbols at the beginning
+    and at the end of string,
+    then replace new lines inside the string
+    and at last append new line at the end of string
+    """
+    return "{}{}".format(message.strip().replace("\n", " "), eol)
+
+
+async def send(writer: asyncio.StreamWriter, data: Union[bytes, str]):
+    """helper for writing into stream"""
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+    writer.write(data)
+    await writer.drain()
+
+
+async def read(reader: asyncio.StreamReader) -> str:
+    """helper for reading from stream"""
+    raw_data = await reader.readline()
+    decoded_data = raw_data.decode("utf-8").strip()
+    logging.debug(decoded_data)
+    return decoded_data
