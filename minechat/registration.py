@@ -106,8 +106,8 @@ def main():
     token_label.pack(side="left", fill=tk.X)
 
     token_entry = tk.Entry(
-        token_frame, state="readonly", textvariable=token_var
-    )
+        token_frame, textvariable=token_var,
+    )  # I don't know if I should use state="readonly" here
     token_entry.pack(side="left", fill=tk.X, expand=True)
 
     copy_button = tk.Button(token_frame)
