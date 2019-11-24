@@ -1,4 +1,0 @@
-[console_scripts]
-minechat = minechat.main:main
-registration = minechat.registration:main
-

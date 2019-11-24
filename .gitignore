@@ -2,6 +2,9 @@
 .idea/
 .vscode/
 
+### distribution files
+*.egg-info/
+
 ### python cache files
 __pycache__/
 *.py[co]
