@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import functools
 import logging
-from typing import Union
+from typing import Union, Set
 
 import aionursery
 
@@ -63,3 +63,9 @@ async def read(reader: asyncio.StreamReader) -> str:
     decoded_data = raw_data.decode("utf-8").strip()
     logging.debug(decoded_data)
     return decoded_data
+
+
+def is_bot(message: str) -> bool:
+    bot_names = {"Vlad", "Eva"}
+    name, _ = message.split(":", 2)
+    return name in bot_names

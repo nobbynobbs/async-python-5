@@ -6,7 +6,7 @@ import aionursery
 import async_timeout
 
 import minechat.clients as clients
-from minechat.helpers import reconnect, create_handy_nursery
+from minechat.helpers import reconnect, create_handy_nursery, is_bot
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ async def handle_connection(
                 state_queue=state_queue,
                 message_queues=[messages_queue, history_queue],
                 watchdog_queue=watchdog_queue,
+                msg_filter=None,  # msg_filter=is_bot,
             ))
             nursery.start_soon(clients.send_messages(
                 address=writer_address,

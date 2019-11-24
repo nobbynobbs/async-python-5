@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import List
+from typing import List, TypeVar, Union, Callable
 
 from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError
@@ -91,12 +91,16 @@ async def authenticate(token, reader, writer, watchdog_queue):
         return account_info
 
 
+MsgFilter = Union[None, Callable[[str], bool]]
+
+
 async def read_messages(
         address: str,
         state_queue: asyncio.Queue,
         message_queues: List[asyncio.Queue],
         watchdog_queue: asyncio.Queue,
-        timeout: float = 1
+        timeout: float = 1,
+        msg_filter: MsgFilter = None,
 ):
     """establish connection and then
     read messages from stream reader and pass them into queues
@@ -110,6 +114,8 @@ async def read_messages(
         while True:
             raw_bytes = await reader.readline()
             msg = raw_bytes.decode("utf-8").strip()
+            if msg_filter is not None and msg_filter(msg):
+                continue
             await watchdog_queue.put("New message in chat")
             for queue in message_queues:
                 await queue.put(msg)
