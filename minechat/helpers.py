@@ -26,7 +26,7 @@ AsyncFunctionDecorator = Callable[[AsyncFunction], AsyncFunction]
 
 def reconnect(delay: float = 2) -> AsyncFunctionDecorator:
     """wraps connection handler into almost infinite loop"""
-    def deco(f: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
+    def deco(f: AsyncFunction) -> AsyncFunction:
         @functools.wraps(f)
         async def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> None:
             while True:
