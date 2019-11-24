@@ -10,7 +10,7 @@ async def restore(path: str, messages_queue: asyncio.Queue):
             async for msg in f:
                 await messages_queue.put(msg.strip())
     except FileNotFoundError:
-        pass # it's ok
+        pass  # it's ok
 
 
 async def save(path: str, history_queue: asyncio.Queue):
