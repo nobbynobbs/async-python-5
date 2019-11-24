@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import List, TypeVar, Union, Callable
+from typing import List, Union, Callable
 
 from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError

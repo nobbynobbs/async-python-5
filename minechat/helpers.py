@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import functools
 import logging
-from typing import Union, Set
+from typing import Union
 
 import aionursery
 

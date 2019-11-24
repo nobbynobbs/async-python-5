@@ -48,7 +48,7 @@ async def handle_connection(
                 state_queue=state_queue,
                 message_queues=[messages_queue, history_queue],
                 watchdog_queue=watchdog_queue,
-                msg_filter=None,  # msg_filter=is_bot,
+                msg_filter=is_bot,  # msg_filter=None,
             ))
             nursery.start_soon(clients.send_messages(
                 address=writer_address,
