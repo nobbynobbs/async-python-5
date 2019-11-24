@@ -11,7 +11,10 @@ from minechat.helpers import reconnect, create_handy_nursery, is_bot
 logger = logging.getLogger(__name__)
 
 
-async def watch_for_connection(events_queue: asyncio.Queue, timeout=1):
+async def watch_for_connection(
+        events_queue: asyncio.Queue,
+        timeout: float = 1
+) -> None:
     """check if messages received quite often"""
     while True:
         try:
@@ -35,7 +38,7 @@ async def handle_connection(
         history_queue: asyncio.Queue,
         watchdog_queue: asyncio.Queue,
         state_queue: asyncio.Queue,
-):
+) -> None:
     """just starts coroutines and handle ConnectionExceptions"""
     try:
         async with create_handy_nursery() as nursery:

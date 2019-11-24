@@ -21,6 +21,10 @@ jobs:
     - name: Lint with flake8
       run: |
         make lint
+    - name: Check typing with mypy
+      run: |
+        make mypy
+
 #     - name: Test with pytest
 #       run: |
 #         pip install pytest

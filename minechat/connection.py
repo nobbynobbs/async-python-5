@@ -1,7 +1,7 @@
 import asyncio
 import contextlib
 
-from typing import Tuple, Any, Generator, Type, TypeVar
+from typing import Tuple, Type, TypeVar, AsyncGenerator
 
 import async_timeout
 
@@ -21,7 +21,7 @@ async def connect(
         state_queue: asyncio.Queue,
         state_cls: Type[StateChanged],
         timeout: float = 1,
-) -> Generator[Any, None, Tuple[asyncio.StreamReader, asyncio.StreamWriter]]:
+) -> AsyncGenerator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None]:
     """create connection and send statuses into queue"""
 
     host, port = address.split(":")

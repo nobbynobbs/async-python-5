@@ -9,5 +9,8 @@
 __pycache__/
 *.py[co]
 
+### third party tools generated files
+.mypy_cache/
+
 ### app files
 history.txt

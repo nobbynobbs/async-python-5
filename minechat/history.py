@@ -3,7 +3,7 @@ import asyncio
 import aiofiles
 
 
-async def restore(path: str, messages_queue: asyncio.Queue):
+async def restore(path: str, messages_queue: asyncio.Queue) -> None:
     """restore messages history from file"""
     try:
         async with aiofiles.open(path, "r", encoding="utf-8") as f:
@@ -13,7 +13,7 @@ async def restore(path: str, messages_queue: asyncio.Queue):
         pass  # it's ok
 
 
-async def save(path: str, history_queue: asyncio.Queue):
+async def save(path: str, history_queue: asyncio.Queue) -> None:
     """dump messages history into file"""
     async with aiofiles.open(path, "a", encoding="utf-8") as f:
         while True:

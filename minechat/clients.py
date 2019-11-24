@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import List, Union, Callable
+from typing import List, Union, Callable, Dict
 
 from minechat.connection import connect
 from minechat.exceptions import InvalidToken, UnknownError
@@ -15,7 +15,7 @@ async def send_messages(
         state_queue: asyncio.Queue,
         input_queue: asyncio.Queue,
         watchdog_queue: asyncio.Queue,
-):
+) -> None:
     """send message to minechat"""
     async with connect(
             address=address,
@@ -44,7 +44,7 @@ async def _send_user_messages(
         writer: asyncio.StreamWriter,
         input_queue: asyncio.Queue,
         watchdog_queue: asyncio.Queue,
-):
+) -> None:
     """read messages from queue and send them to server"""
     while True:
         msg = await input_queue.get()
@@ -56,7 +56,7 @@ async def _send_user_messages(
 
 async def _send_healthcheck_messages(
         writer: asyncio.StreamWriter, interval: float = 0.5
-):
+) -> None:
     """send pings to server"""
     while True:
         writer.write(b"\n")
@@ -66,14 +66,19 @@ async def _send_healthcheck_messages(
 
 async def _read_healthcheck_messages(
         reader: asyncio.StreamReader, watchdog_queue: asyncio.Queue
-):
+) -> None:
     """read server responses to pings"""
     while True:
         _ = await reader.readline()
         await watchdog_queue.put("Healthcheck message")
 
 
-async def authenticate(token, reader, writer, watchdog_queue):
+async def authenticate(
+        token: str,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+        watchdog_queue: asyncio.Queue,
+) -> Dict[str, str]:
     """authenticate user by token"""
     await helpers.read(reader)  # read auth greeting
     await watchdog_queue.put("Prompt before authentication")
@@ -101,7 +106,7 @@ async def read_messages(
         watchdog_queue: asyncio.Queue,
         timeout: float = 1,
         msg_filter: MsgFilter = None,
-):
+) -> None:
     """establish connection and then
     read messages from stream reader and pass them into queues
     """

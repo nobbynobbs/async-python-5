@@ -2,13 +2,13 @@ import asyncio
 import contextlib
 import functools
 import logging
-from typing import Union
+from typing import Union, Callable, AsyncGenerator, Awaitable, Tuple, Any, Dict
 
 import aionursery
 
 
 @contextlib.asynccontextmanager
-async def create_handy_nursery():
+async def create_handy_nursery() -> AsyncGenerator[aionursery.Nursery, None]:
     try:
         async with aionursery.Nursery() as nursery:
             yield nursery
@@ -20,11 +20,15 @@ async def create_handy_nursery():
         raise
 
 
-def reconnect(delay=2):
+AsyncFunction = Callable[..., Awaitable]
+AsyncFunctionDecorator = Callable[[AsyncFunction], AsyncFunction]
+
+
+def reconnect(delay: float = 2) -> AsyncFunctionDecorator:
     """wraps connection handler into almost infinite loop"""
-    def deco(f):
+    def deco(f: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
         @functools.wraps(f)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> None:
             while True:
                 try:
                     await f(*args, **kwargs)
@@ -39,7 +43,7 @@ def reconnect(delay=2):
     return deco
 
 
-def sanitize(message: str, eol: str = "\n"):
+def sanitize(message: str, eol: str = "\n") -> str:
     """helper function.
     truncate space symbols at the beginning
     and at the end of string,
@@ -49,7 +53,7 @@ def sanitize(message: str, eol: str = "\n"):
     return "{}{}".format(message.strip().replace("\n", " "), eol)
 
 
-async def send(writer: asyncio.StreamWriter, data: Union[bytes, str]):
+async def send(writer: asyncio.StreamWriter, data: Union[bytes, str]) -> None:
     """helper for writing into stream"""
     if isinstance(data, str):
         data = data.encode("utf-8")

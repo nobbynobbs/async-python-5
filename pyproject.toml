@@ -13,6 +13,7 @@ aionursery = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
+mypy = "^0.740.0"
 
 [tool.poetry.scripts]
 minechat = "minechat.main:main"

@@ -13,7 +13,10 @@ from minechat.helpers import create_handy_nursery
 from minechat.watchdog import handle_connection
 
 
-async def send_greetings(greetings: List[str], messages_queue: asyncio.Queue):
+async def send_greetings(
+        greetings: List[str],
+        messages_queue: asyncio.Queue
+) -> None:
     """send greetings into messages queue"""
     for greeting in greetings:
         await messages_queue.put(greeting)
@@ -25,14 +28,15 @@ async def run_app(
         access_token: str,
         history_path: str,
         greetings: List[str],
-):
+) -> None:
     """entry point coroutine, just runs all the things"""
 
-    messages_queue = asyncio.Queue()
-    sending_queue = asyncio.Queue()
-    status_updates_queue = asyncio.Queue()
-    history_queue = asyncio.Queue()
-    watchdog_queue = asyncio.Queue()
+    # I don't know why here should be type annotations, but mypy said so
+    messages_queue: asyncio.Queue = asyncio.Queue()
+    sending_queue: asyncio.Queue = asyncio.Queue()
+    status_updates_queue: asyncio.Queue = asyncio.Queue()
+    history_queue: asyncio.Queue = asyncio.Queue()
+    watchdog_queue: asyncio.Queue = asyncio.Queue()
 
     async with create_handy_nursery() as nursery:
         # it's messages queue consumer, so run it first in background
@@ -62,7 +66,7 @@ async def run_app(
         ))
 
 
-def main():
+def main() -> None:
     """entry point to application"""
 
     params = args.process_args()

@@ -19,7 +19,7 @@ def register(
         name_field: tk.Entry,
         address_field: tk.Entry,
         token_var: tk.StringVar
-):
+) -> None:
     """register new user"""
 
     name = name_field.get().strip()
@@ -51,7 +51,7 @@ def register(
             token_var.set(account["account_hash"])
 
 
-def copy_token(root: tk.Tk, token_var: tk.StringVar):
+def copy_token(root: tk.Tk, token_var: tk.StringVar) -> None:
     """copy token value to clipboard"""
     token = token_var.get()
     root.clipboard_clear()
@@ -59,7 +59,7 @@ def copy_token(root: tk.Tk, token_var: tk.StringVar):
     root.update()
 
 
-def main():
+def main() -> None:
     root = tk.Tk()
     token_var = tk.StringVar()
 

@@ -1,6 +1,7 @@
+from typing import Dict, Any
 
 
-def get_dict(level: str):
+def get_dict(level: str) -> Dict[str, Any]:
     """dict config for logging module"""
     return {
         "version": 1,
