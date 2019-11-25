@@ -79,8 +79,8 @@ def is_bot(message: str) -> bool:
 
 def split_address(address: str) -> Tuple[str, int]:
     try:
-        host, maybe_port = address.split(":", 2)
-        port = int(maybe_port)
+        host, port = address.split(":", 2)  # type: str, Union[int, str]
+        port = int(port)
     except ValueError:
         raise InvalidAddress(
             "Некорректный адрес сервера",

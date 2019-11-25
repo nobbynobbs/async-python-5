@@ -1,6 +1,6 @@
 class MinechatError(Exception):
     """base exception"""
-    def __init__(self, title: str, message: str):
+    def __init__(self, title: str, message: str) -> None:
         self.title = title
         self.message = message
         super().__init__(title, message)
