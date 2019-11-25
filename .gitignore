@@ -14,3 +14,6 @@ __pycache__/
 
 ### app files
 history.txt
+
+### other
+.token

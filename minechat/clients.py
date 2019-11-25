@@ -88,10 +88,16 @@ async def authenticate(
         account_info = json.loads(response)
     except json.JSONDecodeError:
         logging.error("invalid json in authentication response")
-        raise UnknownError
+        raise UnknownError(
+            "Неизвестная ошибка",
+            "Не удалось обработать ответ сервера, попробуйте позже"
+        )
     else:
         if account_info is None:
-            raise InvalidToken
+            raise InvalidToken(
+                "Неверный токен",
+                "Проверьте токен, сервер его не узнал",
+            )
         await watchdog_queue.put("Authenticated")
         return account_info
 

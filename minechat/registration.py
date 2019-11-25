@@ -10,7 +10,7 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 
 import minechat.helpers as helpers
-
+from minechat import exceptions
 
 BUFFER_SIZE = 2048
 
@@ -31,24 +31,33 @@ def register(
         )
         return
 
-    host, port = address.split(":")
-    with socket.create_connection((host, port), timeout=2) as s:
-        s.recv(BUFFER_SIZE)  # skip greeting
-        s.sendall(b"\n")  # skip auth
-        s.recv(BUFFER_SIZE)  # skip registration greetings
-        s.sendall(helpers.sanitize(name).encode("utf-8"))  # send name
-        # there is very fragile piece of code below
-        # but I'm too lazy to implementing something like "readline"
-        raw_bytes = s.recv(BUFFER_SIZE)
-        response = raw_bytes.decode("utf-8").split("\n")
-        try:
-            account = json.loads(response[0])
-        except json.JSONDecodeError:
-            messagebox.showinfo(
-                "Ошибка", "Неожиданный ответ сервера, повторите попытку позже"
-            )
-        else:
-            token_var.set(account["account_hash"])
+    try:
+        host, port = helpers.split_address(address)
+    except exceptions.InvalidAddress:
+        messagebox.showinfo("Ошибка", "Неверный адрес сервера")
+        return
+    try:
+        with socket.create_connection((host, port), timeout=2) as s:
+            s.recv(BUFFER_SIZE)  # skip greeting
+            s.sendall(b"\n")  # skip auth
+            s.recv(BUFFER_SIZE)  # skip registration greetings
+            s.sendall(helpers.sanitize(name).encode("utf-8"))  # send name
+            # there is very fragile piece of code below
+            # but I'm too lazy to implementing something like "readline"
+            raw_bytes = s.recv(BUFFER_SIZE)
+            response = raw_bytes.decode("utf-8").split("\n")
+            try:
+                account = json.loads(response[0])
+            except json.JSONDecodeError:
+                messagebox.showinfo(
+                    "Ошибка",
+                    "Неожиданный ответ сервера, повторите попытку позже"
+                )
+            else:
+                token_var.set(account["account_hash"])
+    except socket.timeout:
+        messagebox.showinfo("Ошибка", "Не удалось подключиться к серверу, "
+                                      "проверьте что указан правильный адрес")
 
 
 def copy_token(root: tk.Tk, token_var: tk.StringVar) -> None:

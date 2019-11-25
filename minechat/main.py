@@ -8,7 +8,7 @@ import minechat.args as args
 import minechat.history as history
 import minechat.lib.gui as gui
 from minechat import logger_config
-from minechat.exceptions import InvalidToken, UnknownError
+from minechat.exceptions import MinechatError
 from minechat.helpers import create_handy_nursery
 from minechat.watchdog import handle_connection
 
@@ -85,21 +85,8 @@ def main() -> None:
             history_path=params.history,
             greetings=greetings,
         ))
-    except InvalidToken:
-        messagebox.showinfo(
-            "Неверный токен",
-            "Проверьте токен, сервер его не узнал."
-        )
-    except UnknownError:
-        messagebox.showinfo(
-            "Неизвестная ошибка",
-            "Произошла неизвестная ошибка, приложение будет закрыто."
-        )
-    except PermissionError as e:
-        messagebox.showinfo(
-            e.__class__.__name__,
-            f"Невозможно получить доступ к файлу {e.filename}"
-        )
+    except MinechatError as e:
+        messagebox.showinfo(e.title, e.message)
     except (KeyboardInterrupt, gui.TkAppClosed):
         pass
 

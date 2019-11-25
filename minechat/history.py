@@ -2,6 +2,8 @@ import asyncio
 
 import aiofiles
 
+from minechat import exceptions
+
 
 async def restore(path: str, messages_queue: asyncio.Queue) -> None:
     """restore messages history from file"""
@@ -15,7 +17,13 @@ async def restore(path: str, messages_queue: asyncio.Queue) -> None:
 
 async def save(path: str, history_queue: asyncio.Queue) -> None:
     """dump messages history into file"""
-    async with aiofiles.open(path, "a", encoding="utf-8") as f:
-        while True:
-            msg = await history_queue.get()
-            await f.write(msg + "\n")
+    try:
+        async with aiofiles.open(path, "a", encoding="utf-8") as f:
+            while True:
+                msg = await history_queue.get()
+                await f.write(msg + "\n")
+    except PermissionError as ex:
+        raise exceptions.PermissionError(
+            "Не могу открыть файл",
+            f"Проверьте что файл {ex.filename} доступен для записи"
+        )

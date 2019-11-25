@@ -5,6 +5,7 @@ from typing import Tuple, Type, TypeVar, AsyncGenerator
 
 import async_timeout
 
+from minechat import helpers
 from minechat.lib import gui
 
 
@@ -24,7 +25,7 @@ async def connect(
 ) -> AsyncGenerator[Tuple[asyncio.StreamReader, asyncio.StreamWriter], None]:
     """create connection and send statuses into queue"""
 
-    host, port = address.split(":")
+    host, port = helpers.split_address(address)
     await state_queue.put(state_cls.INITIATED)
     try:
         async with async_timeout.timeout(timeout):

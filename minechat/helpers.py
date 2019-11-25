@@ -6,6 +6,8 @@ from typing import Union, Callable, AsyncGenerator, Awaitable, Tuple, Any, Dict
 
 import aionursery
 
+from minechat.exceptions import InvalidAddress
+
 
 @contextlib.asynccontextmanager
 async def create_handy_nursery() -> AsyncGenerator[aionursery.Nursery, None]:
@@ -73,3 +75,16 @@ def is_bot(message: str) -> bool:
     bot_names = {"Vlad", "Eva"}
     name, _ = message.split(":", 2)
     return name in bot_names
+
+
+def split_address(address: str) -> Tuple[str, int]:
+    try:
+        host, maybe_port = address.split(":", 2)
+        port = int(maybe_port)
+    except ValueError:
+        raise InvalidAddress(
+            "Некорректный адрес сервера",
+            "Проверьте что адрес серверов указан в формате host:port"
+        )
+    else:
+        return host, port
