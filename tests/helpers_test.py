@@ -51,9 +51,9 @@ def test_split_address_must_raise(address):
     ids=["10.0.2.170:8000", "hostname:8080"]
 )
 def test_split_address_must_pass(address, host, port):
-    got_host, got_post = helpers.split_address(address)
+    got_host, got_port = helpers.split_address(address)
     assert got_host == host
-    assert got_post == port
+    assert got_port == port
 
 
 @pytest.mark.asyncio
