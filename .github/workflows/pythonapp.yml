@@ -25,5 +25,5 @@ jobs:
       run: |
         make mypy
     - name: Test with pytest
-       run: |
-         make test
+      run: |
+        make test
