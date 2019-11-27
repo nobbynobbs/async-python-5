@@ -10,7 +10,11 @@ __pycache__/
 *.py[co]
 
 ### third party tools generated files
+htmlcov/
 .mypy_cache/
+.pytest_cache/
+.python-version
+.coverage
 
 ### app files
 history.txt

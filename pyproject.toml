@@ -14,6 +14,9 @@ aionursery = "^0.3.0"
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
 mypy = "^0.740.0"
+pytest = "^5.3"
+pytest-asyncio = "^0.10.0"
+pytest-cov = "^2.8"
 
 [tool.poetry.scripts]
 minechat = "minechat.main:main"
