@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-import asyncio
-
 import aionursery
 import pytest
 
@@ -81,15 +78,3 @@ async def test_handy_nursery_multiple_exception():
         async with helpers.create_handy_nursery() as nursery:
             nursery.start_soon(f())
             nursery.start_soon(g())
-=======
-import unittest
-
-
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)
-
-
-if __name__ == '__main__':
-    unittest.main()
->>>>>>> d16f419eada1c931868d6eb1f7009c3d9fabf2b5
