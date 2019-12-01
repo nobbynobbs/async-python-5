@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import functools
 import logging
-from typing import Union, Callable, AsyncGenerator, Awaitable, Tuple, Any, Dict
+from typing import Union, Callable, Awaitable, Tuple, Any, TypeVar
 
 import aionursery
 
@@ -10,7 +10,7 @@ from minechat.exceptions import InvalidAddress
 
 
 @contextlib.asynccontextmanager
-async def create_handy_nursery() -> AsyncGenerator[aionursery.Nursery, None]:
+async def create_handy_nursery() -> aionursery.Nursery:
     try:
         async with aionursery.Nursery() as nursery:
             yield nursery
@@ -22,15 +22,16 @@ async def create_handy_nursery() -> AsyncGenerator[aionursery.Nursery, None]:
         raise
 
 
+T = TypeVar("T", bound=Callable[..., Any])
+Decorator = Callable[[T], T]
 AsyncFunction = Callable[..., Awaitable]
-AsyncFunctionDecorator = Callable[[AsyncFunction], AsyncFunction]
 
 
-def reconnect(delay: float = 2) -> AsyncFunctionDecorator:
+def reconnect(delay: float = 2) -> Decorator[AsyncFunction]:
     """wraps connection handler into almost infinite loop"""
     def deco(f: AsyncFunction) -> AsyncFunction:
         @functools.wraps(f)
-        async def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> None:
+        async def wrapper(*args: Any, **kwargs: Any) -> None:
             while True:
                 try:
                     await f(*args, **kwargs)
